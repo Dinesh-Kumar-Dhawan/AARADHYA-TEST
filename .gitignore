@@ -1,0 +1,23 @@
+# --- heavy media assets (hosted separately from the source repo) ---
+First Frame/
+Final Videos/
+
+# --- design reference screenshots (not part of the shipping site) ---
+screenshots/
+
+# --- OS / editor junk ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+.history/
+
+# --- logs / local env ---
+*.log
+.env
+.env.local
