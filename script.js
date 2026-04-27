@@ -345,6 +345,23 @@ const detailNext  = $('#detailNext');
 const ctaTiles    = $('#ctaTiles');
 
 let activeDetailIndex = -1;
+let activeDetailOrigin = null;   // the actual element the FLIP should fly from/to
+
+/* given a card index, find a sensible visible origin element for the FLIP.
+   Prefers the active view's representation: grid card in grid view,
+   list item in list view, otherwise the carousel card. */
+function originElementForIndex(i) {
+  const body = document.body;
+  if (body.classList.contains('grid-view')) {
+    const el = gridCards.querySelector(`.grid-card[data-i="${i}"]`);
+    if (el) return el;
+  }
+  if (body.classList.contains('list-view')) {
+    const el = sectionList.querySelector(`.section-list-item[data-i="${i}"]`);
+    if (el) return el;
+  }
+  return cards[i];
+}
 
 function populateDetail(i) {
   const card = CARDS[i];
@@ -359,14 +376,14 @@ function populateDetail(i) {
   `).join('');
 }
 
-function openDetail(i) {
-  activeDetailIndex = i;
+function openDetail(i, originEl) {
+  activeDetailIndex  = i;
+  activeDetailOrigin = originEl || originElementForIndex(i);
   populateDetail(i);
 
-  const cardEl = cards[i];
-  const rect = cardEl.getBoundingClientRect();
+  const rect = activeDetailOrigin.getBoundingClientRect();
 
-  // Lock detailBg to the card's current rect
+  // Lock detailBg to the origin element's current rect
   detailBg.style.transition = 'none';
   detailBg.style.left   = rect.left + 'px';
   detailBg.style.top    = rect.top + 'px';
@@ -389,8 +406,9 @@ function openDetail(i) {
 
 function closeDetail() {
   if (activeDetailIndex < 0) return;
-  const cardEl = cards[activeDetailIndex];
-  const rect = cardEl.getBoundingClientRect();
+  /* re-fetch the origin in case the DOM moved (carousel scrolled, etc.) */
+  const originEl = originElementForIndex(activeDetailIndex);
+  const rect = (originEl || activeDetailOrigin).getBoundingClientRect();
 
   detailBg.style.transition = 'left 0.6s var(--ease), top 0.6s var(--ease), width 0.6s var(--ease), height 0.6s var(--ease)';
   detailBg.style.left   = rect.left + 'px';
@@ -400,7 +418,8 @@ function closeDetail() {
 
   detail.classList.remove('open');
   document.body.classList.remove('detail-open');
-  activeDetailIndex = -1;
+  activeDetailIndex  = -1;
+  activeDetailOrigin = null;
 }
 
 detailBack.addEventListener('click', closeDetail);
@@ -669,9 +688,9 @@ document.body.addEventListener('mouseover', (e) => {
 });
 
 /* ---------- ALTERNATIVE HERO: side-list view ---------- */
-const heroToggle  = $('#heroToggle');
-const sectionList = $('#sectionList');
-const listCtas    = $('#listCtas');
+const viewSwitcher = $('#viewSwitcher');
+const sectionList  = $('#sectionList');
+const listCtas     = $('#listCtas');
 
 /* populate the section list once */
 sectionList.innerHTML = CARDS.map((card, i) => `
@@ -713,19 +732,56 @@ listCtas.addEventListener('click', (e) => {
   openPlayer(parseInt(tile.dataset.card, 10), parseInt(tile.dataset.chapter, 10));
 });
 
-heroToggle.addEventListener('click', () => {
-  const switching = !document.body.classList.contains('list-view');
-  document.body.classList.toggle('list-view', switching);
-  if (switching) {
-    /* when entering list view, seed selection with whatever the carousel was focused on */
+/* ---------- GRID VIEW (third hero alternative) ---------- */
+const gridCards = $('#gridCards');
+
+gridCards.innerHTML = CARDS.map((card, i) => `
+  <button class="grid-card" data-i="${i}" aria-label="Open ${card.title}">
+    <img src="${encodeURI(card.image)}" alt="${card.title}" loading="lazy" draggable="false">
+    <div class="scrim"></div>
+    <div class="meta">
+      <div class="num">${card.num}</div>
+      <h3>${card.title}</h3>
+    </div>
+  </button>
+`).join('');
+
+gridCards.addEventListener('click', (e) => {
+  const card = e.target.closest('.grid-card');
+  if (!card) return;
+  /* pass the grid-card itself as the FLIP origin so the detail view
+     animates from where the user actually tapped, not from the hidden carousel */
+  openDetail(parseInt(card.dataset.i, 10), card);
+});
+
+/* ---------- view switcher — three explicit toggles ---------- */
+function setView(view) {
+  const body = document.body;
+  /* clear both alt-view classes; default (no class) = carousel */
+  body.classList.remove('list-view', 'grid-view');
+
+  if (view === 'list') {
+    body.classList.add('list-view');
     const seed = focusedIndex >= 0 ? focusedIndex : 0;
-    /* force re-populate even if same index as before */
-    listSelectedIndex = -1;
+    listSelectedIndex = -1;       /* force re-render even if same index */
     selectListItem(seed);
+  } else if (view === 'grid') {
+    body.classList.add('grid-view');
   } else {
-    /* when leaving list view, restore ambient to the carousel's focused card */
+    /* carousel — restore ambient to whatever the carousel is focused on */
     if (focusedIndex >= 0) setAmbient(CARDS[focusedIndex]);
   }
+
+  /* sync active-state on all 3 buttons */
+  viewSwitcher.querySelectorAll('.view-btn').forEach((b) => {
+    b.setAttribute('aria-pressed', b.dataset.view === view ? 'true' : 'false');
+  });
+}
+
+viewSwitcher.addEventListener('click', (e) => {
+  const btn = e.target.closest('.view-btn');
+  if (!btn) return;
+  setView(btn.dataset.view);
 });
 
 /* ---------- RESIZE ---------- */
