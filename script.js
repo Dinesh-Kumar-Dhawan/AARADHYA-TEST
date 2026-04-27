@@ -4,6 +4,14 @@
    cursor · keyboard · ambient.
    ============================================================= */
 
+/* === TEMPORARY DIAGNOSTIC: prove the script started executing === */
+console.log('[diagnostic] script.js loaded — line 1');
+try {
+  const m = document.getElementById('jsLoadedMarker');
+  if (m) { m.textContent = 'JS loaded ✓'; m.style.background = '#27ae60'; }
+} catch (_) {}
+/* === /TEMPORARY === */
+
 import { SCENES, THUMBS } from "./scenes.js";
 
 /* ---------- DATA ---------- */
@@ -818,4 +826,11 @@ document.body.classList.add('grid-view');
 viewSwitcher.style.display = 'none';
 console.log('[diagnostic] grid view forced; gridCards children =',
             gridCards.children.length);
+try {
+  const m = document.getElementById('jsCompletedMarker');
+  if (m) {
+    m.textContent = 'Script finished ✓ · grid cards: ' + gridCards.children.length;
+    m.style.background = '#27ae60';
+  }
+} catch (_) {}
 /* === END TEMPORARY === */

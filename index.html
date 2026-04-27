@@ -190,6 +190,18 @@
   <!-- ============ FILM GRAIN OVERLAY ============ -->
   <div class="grain" aria-hidden="true"></div>
 
+  <!-- ===== TEMPORARY DIAGNOSTIC MARKERS — remove when grid view is verified ===== -->
+  <div style="position:fixed; top:10px; left:50%; transform:translateX(-50%); z-index:99999; background:#e74c3c; color:#fff; padding:8px 16px; font:14px monospace; border-radius:4px;">
+    HTML loaded ✓
+  </div>
+  <div id="jsLoadedMarker" style="position:fixed; top:48px; left:50%; transform:translateX(-50%); z-index:99999; background:#7f8c8d; color:#fff; padding:8px 16px; font:14px monospace; border-radius:4px;">
+    JS not loaded yet ✗
+  </div>
+  <div id="jsCompletedMarker" style="position:fixed; top:86px; left:50%; transform:translateX(-50%); z-index:99999; background:#7f8c8d; color:#fff; padding:8px 16px; font:14px monospace; border-radius:4px;">
+    Script not finished ✗
+  </div>
+  <!-- ===== /TEMPORARY DIAGNOSTIC ===== -->
+
   <script type="module" src="script.js"></script>
 </body>
 </html>
