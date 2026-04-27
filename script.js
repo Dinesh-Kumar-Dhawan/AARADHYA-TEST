@@ -95,7 +95,6 @@ setAmbient(CARDS[0]);
 const coverEyebrowText = $('#coverEyebrowText');
 const coverTitle       = $('#coverTitle');
 const coverDesc        = $('#coverDesc');
-const coverPlay        = $('#coverPlay');
 const coverDots        = $('#coverDots');
 
 /* ---------- CAROUSEL ---------- */
@@ -122,10 +121,6 @@ function updateHero(card) {
   coverTitle.textContent       = card.title;
   coverDesc.textContent        = card.desc;
 }
-coverPlay.addEventListener('click', () => {
-  if (focusedIndex >= 0) openDetail(focusedIndex);
-});
-
 carTrack.innerHTML = CARDS.map((card, i) => `
   <button class="card" data-i="${i}" style="--c:${card.color}" aria-label="Open ${card.title}">
     <div class="card-media"><img src="${encodeURI(card.image)}" alt="${card.title}" loading="lazy" draggable="false"></div>

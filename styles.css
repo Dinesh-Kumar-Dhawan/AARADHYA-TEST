@@ -144,13 +144,13 @@ body.player-open .header { opacity: 0; pointer-events: none; }
   color: var(--paper);
 }
 .brand-logo {
-  height: 72px; width: auto; display: block;
+  height: 96px; width: auto; display: block;
   filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.45));
   user-select: none;
   -webkit-user-drag: none;
 }
 @media (max-width: 700px) {
-  .brand-logo { height: 56px; }
+  .brand-logo { height: 64px; }
 }
 
 .nav { display: flex; gap: 2.25rem; align-items: center; }
@@ -219,6 +219,17 @@ body.player-open .header { opacity: 0; pointer-events: none; }
   position: absolute; inset: 0; pointer-events: none;
   background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.45) 100%);
 }
+/* On detail view, shrink the floor gradient to a thin band behind CTAs */
+body.detail-open .ambient-veil {
+  background: linear-gradient(
+    180deg,
+    rgba(7, 10, 8, 0) 0%,
+    rgba(7, 10, 8, 0) 80%,
+    rgba(7, 10, 8, 0.55) 92%,
+    rgba(7, 10, 8, 0.85) 100%
+  );
+}
+body.detail-open .ambient-vignette { opacity: 0; }
 
 /* ---------- 7. COVER CONTENT (Prime Video-style hero) ---------- */
 .cover {
@@ -397,12 +408,12 @@ body.player-open .view-switcher { opacity: 0; pointer-events: none; }
 /* vertical section list — only rendered when .list-view is active */
 .section-list {
   position: fixed;
-  top: 50%;
+  bottom: 6rem;
   right: 1rem;
-  transform: translate(40px, -50%);
+  transform: translateY(40px);
   z-index: 18;
   width: 320px;
-  max-height: calc(100vh - 8rem);
+  max-height: calc(100vh - 10rem);
   padding: 0.5rem;
   display: flex; flex-direction: column; gap: 0.5rem;
   overflow-y: auto;
@@ -415,7 +426,7 @@ body.player-open .view-switcher { opacity: 0; pointer-events: none; }
 .section-list::-webkit-scrollbar-thumb { background: rgba(176, 149, 88, 0.4); }
 body.list-view .section-list {
   opacity: 1; pointer-events: auto;
-  transform: translate(0, -50%);
+  transform: translateY(0);
 }
 
 .section-list-item {
@@ -481,10 +492,18 @@ body.list-view .ambient-scene {
   /* let the hero show at its natural brightness in list view */
   filter: none;
 }
-/* drop both full-screen dark overlays in list view only — the section list
-   and chapter pills carry their own glass backgrounds, so the veils aren't
-   needed for readability here */
-body.list-view .ambient-veil,
+/* List view: replace the floor gradient with a right-to-left dark wash so the
+   bottom-right list reads against the background image. */
+body.list-view .ambient-veil {
+  background: linear-gradient(
+    to left,
+    rgba(7, 10, 8, 0.85) 0%,
+    rgba(7, 10, 8, 0.55) 30%,
+    rgba(7, 10, 8, 0.15) 60%,
+    transparent 85%
+  );
+  opacity: 1;
+}
 body.list-view .ambient-vignette { opacity: 0; }
 
 @media (max-width: 900px) {
@@ -676,10 +695,13 @@ body.detail-open .carousel { opacity: 0; transform: translateY(40px); pointer-ev
 
 .detail-overlay {
   position: absolute; inset: 0; pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(10,15,11,0.45) 0%, rgba(10,15,11,0.15) 40%, rgba(10,15,11,0.6) 100%),
-    linear-gradient(90deg, rgba(10,15,11,0.75) 0%, rgba(10,15,11,0.2) 45%, transparent 70%),
-    radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.3) 100%);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    transparent 80%,
+    rgba(7, 10, 8, 0.45) 92%,
+    rgba(7, 10, 8, 0.7) 100%
+  );
   opacity: 0; transition: opacity 0.45s 0.5s;
 }
 .detail.open .detail-overlay { opacity: 1; }
@@ -756,15 +778,23 @@ body.detail-open .carousel { opacity: 0; transform: translateY(40px); pointer-ev
   z-index: 2;
   width: 48px; height: 48px;
   display: grid; place-items: center;
-  color: rgba(241, 232, 211, 0.55);
+  color: rgba(241, 232, 211, 0.95);
   font-family: "Italiana", serif; font-size: 1.8rem;
-  border: 1px solid rgba(241, 232, 211, 0.15);
+  background: rgba(10, 15, 11, 0.55);
+  border: 1px solid rgba(241, 232, 211, 0.28);
   border-radius: 50%;
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
   opacity: 0;
-  transition: opacity 0.4s 0.6s, color 0.3s, border-color 0.3s, transform 0.4s;
+  transition: opacity 0.4s 0.6s, color 0.3s, border-color 0.3s, background 0.3s, transform 0.4s;
 }
 .detail.open .detail-side { opacity: 1; }
-.detail-side:hover { color: var(--gold); border-color: var(--gold); }
+.detail-side:hover {
+  color: var(--ink);
+  background: var(--gold);
+  border-color: var(--gold);
+}
 .detail-side-prev { left: 2rem; }
 .detail-side-next { right: 2rem; }
 
