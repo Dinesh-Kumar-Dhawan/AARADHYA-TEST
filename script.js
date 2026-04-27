@@ -4,14 +4,6 @@
    cursor · keyboard · ambient.
    ============================================================= */
 
-/* === TEMPORARY DIAGNOSTIC: prove the script started executing === */
-console.log('[diagnostic] script.js loaded — line 1');
-try {
-  const m = document.getElementById('jsLoadedMarker');
-  if (m) { m.textContent = 'JS loaded ✓'; m.style.background = '#27ae60'; }
-} catch (_) {}
-/* === /TEMPORARY === */
-
 import { SCENES, THUMBS } from "./scenes.js";
 
 /* ---------- DATA ---------- */
@@ -356,15 +348,10 @@ let activeDetailIndex = -1;
 let activeDetailOrigin = null;   // the actual element the FLIP should fly from/to
 
 /* given a card index, find a sensible visible origin element for the FLIP.
-   Prefers the active view's representation: grid card in grid view,
-   list item in list view, otherwise the carousel card. */
+   Prefers the active view's representation: list item in list view,
+   otherwise the carousel card. */
 function originElementForIndex(i) {
-  const body = document.body;
-  if (body.classList.contains('grid-view')) {
-    const el = gridCards.querySelector(`.grid-card[data-i="${i}"]`);
-    if (el) return el;
-  }
-  if (body.classList.contains('list-view')) {
+  if (document.body.classList.contains('list-view')) {
     const el = sectionList.querySelector(`.section-list-item[data-i="${i}"]`);
     if (el) return el;
   }
@@ -740,47 +727,22 @@ listCtas.addEventListener('click', (e) => {
   openPlayer(parseInt(tile.dataset.card, 10), parseInt(tile.dataset.chapter, 10));
 });
 
-/* ---------- GRID VIEW (third hero alternative) ---------- */
-const gridCards = $('#gridCards');
-
-gridCards.innerHTML = CARDS.map((card, i) => `
-  <button class="grid-card" data-i="${i}" aria-label="Open ${card.title}">
-    <img src="${encodeURI(card.image)}" alt="${card.title}" loading="lazy" draggable="false">
-    <div class="scrim"></div>
-    <div class="meta">
-      <div class="num">${card.num}</div>
-      <h3>${card.title}</h3>
-    </div>
-  </button>
-`).join('');
-
-gridCards.addEventListener('click', (e) => {
-  const card = e.target.closest('.grid-card');
-  if (!card) return;
-  /* pass the grid-card itself as the FLIP origin so the detail view
-     animates from where the user actually tapped, not from the hidden carousel */
-  openDetail(parseInt(card.dataset.i, 10), card);
-});
-
-/* ---------- view switcher — three explicit toggles ---------- */
+/* ---------- view switcher — two explicit toggles (carousel / list) ---------- */
 function setView(view) {
   const body = document.body;
-  /* clear both alt-view classes; default (no class) = carousel */
-  body.classList.remove('list-view', 'grid-view');
+  body.classList.remove('list-view');
 
   if (view === 'list') {
     body.classList.add('list-view');
     const seed = focusedIndex >= 0 ? focusedIndex : 0;
     listSelectedIndex = -1;       /* force re-render even if same index */
     selectListItem(seed);
-  } else if (view === 'grid') {
-    body.classList.add('grid-view');
   } else {
     /* carousel — restore ambient to whatever the carousel is focused on */
     if (focusedIndex >= 0) setAmbient(CARDS[focusedIndex]);
   }
 
-  /* sync active-state on all 3 buttons */
+  /* sync active-state on view buttons */
   viewSwitcher.querySelectorAll('.view-btn').forEach((b) => {
     b.setAttribute('aria-pressed', b.dataset.view === view ? 'true' : 'false');
   });
@@ -817,20 +779,3 @@ function returnToHome() {
 /* keep timer alive while a video is actively playing */
 setInterval(() => { if (videoEl && !videoEl.paused) resetIdleReturn(); }, 2000);
 resetIdleReturn();
-
-/* ====================================================================
-   TEMPORARY DIAGNOSTIC — force grid view, hide other UI to test grid in isolation.
-   To restore the 3-view system, delete this entire block.
-   ==================================================================== */
-document.body.classList.add('grid-view');
-viewSwitcher.style.display = 'none';
-console.log('[diagnostic] grid view forced; gridCards children =',
-            gridCards.children.length);
-try {
-  const m = document.getElementById('jsCompletedMarker');
-  if (m) {
-    m.textContent = 'Script finished ✓ · grid cards: ' + gridCards.children.length;
-    m.style.background = '#27ae60';
-  }
-} catch (_) {}
-/* === END TEMPORARY === */
