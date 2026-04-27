@@ -809,3 +809,13 @@ function returnToHome() {
 /* keep timer alive while a video is actively playing */
 setInterval(() => { if (videoEl && !videoEl.paused) resetIdleReturn(); }, 2000);
 resetIdleReturn();
+
+/* ====================================================================
+   TEMPORARY DIAGNOSTIC — force grid view, hide other UI to test grid in isolation.
+   To restore the 3-view system, delete this entire block.
+   ==================================================================== */
+document.body.classList.add('grid-view');
+viewSwitcher.style.display = 'none';
+console.log('[diagnostic] grid view forced; gridCards children =',
+            gridCards.children.length);
+/* === END TEMPORARY === */
