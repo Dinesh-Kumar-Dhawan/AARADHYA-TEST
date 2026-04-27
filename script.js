@@ -4,8 +4,6 @@
    cursor · keyboard · ambient.
    ============================================================= */
 
-import { SCENES, THUMBS } from "./scenes.js";
-
 /* ---------- DATA ---------- */
 
 const CARDS = [
@@ -82,15 +80,6 @@ const DEFAULT_DUR = '0:42';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
-
-function renderScene(sceneId, color) {
-  const fn = SCENES[sceneId];
-  return fn ? fn(color) : '';
-}
-function renderThumb(thumbId, color) {
-  const fn = THUMBS[thumbId];
-  return fn ? fn(color) : '';
-}
 
 function parseDur(s) { const [m, sec] = s.split(':').map(Number); return m*60 + sec; }
 function fmtDur(n)   { const m = Math.floor(n/60); const s = Math.floor(n%60); return `${m}:${String(s).padStart(2,'0')}`; }
